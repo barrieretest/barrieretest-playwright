@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Inaccessible Test Page</title>
+</head>
+<body>
+  <!-- Missing lang attribute on html element -->
+
+  <div>
+    <!-- Using divs instead of semantic header -->
+    <div>
+      <!-- Link with no text content -->
+      <a href="/"></a>
+    </div>
+  </div>
+
+  <div>
+    <!-- No main landmark, no heading structure -->
+    <div>This is some content without proper structure.</div>
+
+    <!-- Form without labels -->
+    <form>
+      <input type="text" placeholder="Enter your name">
+      <input type="email" placeholder="Enter your email">
+      <!-- Button without accessible name -->
+      <button></button>
+    </form>
+
+    <!-- Image without alt attribute -->
+    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">
+
+    <!-- Low contrast text (simulated - actual contrast depends on rendering) -->
+    <p style="color: #999; background: #fff;">Light gray text on white</p>
+  </div>
+
+  <div>
+    <!-- Using div as footer instead of semantic element -->
+    <div>Footer content</div>
+  </div>
+</body>
+</html>

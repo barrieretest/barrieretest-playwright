@@ -1,4 +1,10 @@
-import type { AuditResult, BaselineInfo, Issue, IssueSeverity } from "@barrieretest/core";
+import type {
+  AuditResult,
+  BaselineInfo,
+  DetailLevel,
+  Issue,
+  IssueSeverity,
+} from "@barrieretest/core";
 
 const SEVERITY_ICONS: Record<IssueSeverity, string> = {
   critical: "X",
@@ -20,23 +26,49 @@ const DIM = "\x1b[2m";
 
 const severityOrder: IssueSeverity[] = ["critical", "serious", "moderate", "minor"];
 
-function formatIssue(issue: Issue): string {
+function truncate(text: string, maxLength: number = 160): string {
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength - 1)}…`;
+}
+
+function formatIssue(issue: Issue, detail: DetailLevel): string {
   const icon = SEVERITY_ICONS[issue.impact];
   const color = SEVERITY_COLORS[issue.impact];
   const lines: string[] = [];
 
   lines.push(`${color}${icon}${RESET} ${BOLD}${issue.impact}${RESET}: ${issue.id}`);
 
+  if (detail === "minimal") {
+    return lines.join("\n");
+  }
+
   if (issue.selector) {
     lines.push(`   Element: ${DIM}${issue.selector}${RESET}`);
   }
 
-  if (issue.help) {
-    lines.push(`   Fix: ${issue.help}`);
+  if (issue.description) {
+    lines.push(`   ${issue.description}`);
   }
 
-  if (issue.helpUrl) {
-    lines.push(`   ${DIM}${issue.helpUrl}${RESET}`);
+  if (issue.help) {
+    lines.push(`   Help: ${issue.help}`);
+  }
+
+  if (detail === "fix-ready") {
+    const codeSnippet = issue.nodes[0]?.html;
+    if (codeSnippet) {
+      lines.push(`   Code: ${truncate(codeSnippet)}`);
+    }
+
+    if (issue.failureSummary) {
+      for (const line of issue.failureSummary.split("\n")) {
+        lines.push(`   ${line}`);
+      }
+    }
+
+    if (issue.helpUrl) {
+      lines.push(`   Docs: ${DIM}${issue.helpUrl}${RESET}`);
+    }
   }
 
   return lines.join("\n");
@@ -88,7 +120,10 @@ function formatBaselineSummary(baseline: BaselineInfo): string {
   return parts.join(", ");
 }
 
-export function formatFailureMessage(result: AuditResult): string {
+export function formatFailureMessage(
+  result: AuditResult,
+  detail: DetailLevel = "actionable"
+): string {
   const { issues, url, score, baseline } = result;
 
   if (issues.length === 0 && !baseline) {
@@ -118,7 +153,7 @@ export function formatFailureMessage(result: AuditResult): string {
 
   for (const [, severityIssues] of grouped) {
     for (const issue of severityIssues) {
-      lines.push(formatIssue(issue));
+      lines.push(formatIssue(issue, detail));
       lines.push("");
     }
   }

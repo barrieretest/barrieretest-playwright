@@ -75,6 +75,62 @@ describe("formatFailureMessage", () => {
     expect(plain).toContain("Add aria-label or visible text content");
   });
 
+  it("uses actionable detail by default", () => {
+    const issue = createMockIssue({
+      description: "Actionable description",
+      help: "Rule-level help",
+      helpUrl: "https://example.com/docs",
+      failureSummary: "Fix any of the following:\n  Specific element failure",
+      nodes: [{ html: "<button>Submit</button>" }],
+    });
+    const result = createMockResult([issue]);
+    const plain = stripAnsi(formatFailureMessage(result));
+
+    expect(plain).toContain("Actionable description");
+    expect(plain).toContain("Help: Rule-level help");
+    expect(plain).not.toContain("Code:");
+    expect(plain).not.toContain("Specific element failure");
+    expect(plain).not.toContain("Docs:");
+  });
+
+  it("supports minimal detail", () => {
+    const issue = createMockIssue({
+      description: "Minimal description",
+      help: "Minimal help",
+      selector: "#minimal-target",
+      helpUrl: "https://example.com/minimal-docs",
+      failureSummary: "Minimal failure summary",
+    });
+    const result = createMockResult([issue]);
+    const plain = stripAnsi(formatFailureMessage(result, "minimal"));
+
+    expect(plain).toContain("test-rule");
+    expect(plain).not.toContain("#minimal-target");
+    expect(plain).not.toContain("Minimal description");
+    expect(plain).not.toContain("Minimal help");
+    expect(plain).not.toContain("Minimal failure summary");
+    expect(plain).not.toContain("example.com/minimal-docs");
+  });
+
+  it("supports fix-ready detail", () => {
+    const issue = createMockIssue({
+      description: "Fix-ready description",
+      help: "Rule-level help",
+      helpUrl: "https://example.com/fix-ready-docs",
+      failureSummary: "Fix any of the following:\n  Specific element failure",
+      nodes: [{ html: "<button class=\"submit\">Submit</button>" }],
+    });
+    const result = createMockResult([issue]);
+    const plain = stripAnsi(formatFailureMessage(result, "fix-ready"));
+
+    expect(plain).toContain("Fix-ready description");
+    expect(plain).toContain("Help: Rule-level help");
+    expect(plain).toContain("Code: <button class=\"submit\">Submit</button>");
+    expect(plain).toContain("Fix any of the following:");
+    expect(plain).toContain("Specific element failure");
+    expect(plain).toContain("Docs: https://example.com/fix-ready-docs");
+  });
+
   it("should format multiple issues", () => {
     const issues = [
       createMockIssue({ id: "button-name", impact: "critical" }),

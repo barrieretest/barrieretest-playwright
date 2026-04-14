@@ -64,10 +64,11 @@ export function createToBeAccessibleMatcher(fixtureConfig?: BarrieretestConfig) 
       : result.issues.length > 0;
 
     const issueCount = result.baseline ? result.baseline.newIssues.length : result.issues.length;
+    const detail = mergedOptions.detail ?? "actionable";
 
     return {
       pass: !hasNewIssues,
-      message: () => (hasNewIssues ? formatFailureMessage(result) : formatPassMessage(result)),
+      message: () => (hasNewIssues ? formatFailureMessage(result, detail) : formatPassMessage(result)),
       actual: issueCount,
       expected: 0,
     };

@@ -56,6 +56,12 @@ await expect(page).toBeAccessible({
 | `baseline` | `string` | Baseline file path |
 | `updateBaseline` | `boolean` | Update baseline with current issues |
 
+Detail levels:
+
+- `minimal` shows rule id and severity only
+- `actionable` adds selector, description, and rule-level help text
+- `fix-ready` adds rule help text, per-element failure summary, code snippet, and documentation links when available
+
 ## Global config
 
 Set defaults in `playwright.config.ts`:
@@ -118,7 +124,7 @@ Only new issues (not in the baseline) cause failures. See `@barrieretest/core` f
 
 - Node.js 18+
 - `@playwright/test` ^1.40.0
-- `@barrieretest/core` latest
+- `@barrieretest/core` ^0.4.0
 
 ## Exports
 
